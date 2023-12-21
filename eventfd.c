@@ -9,6 +9,10 @@
 
 #define BUFF_SZ   512
 
+typedef struct {
+    int efd;
+} data_t;
+
 char buff[BUFF_SZ + 1];
 struct io_uring ring;
 
@@ -19,7 +23,7 @@ void error_exit(char *message) {
 
 void *listener_thread(void *data) {
     struct io_uring_cqe *cqe;
-    int efd = (int) data;
+    int efd = ((data_t*)data)->efd;
     eventfd_t v;
     printf("%s: Waiting for completion event...\n", __FUNCTION__);
 
@@ -73,20 +77,20 @@ int read_file_with_io_uring() {
 
 int main() {
     pthread_t t;
-    int efd;
+    data_t data;
 
     /* Create an eventfd instance */
-    efd = eventfd(0, 0);
-    if (efd < 0)
+    data.efd = eventfd(0, 0);
+    if (data.efd < 0)
         error_exit("eventfd");
 
     /* Create the listener thread */
-    pthread_create(&t, NULL, listener_thread, (void *)efd);
+    pthread_create(&t, NULL, listener_thread, (void *)&data);
 
     sleep(2);
 
     /* Setup io_uring instance and register the eventfd */
-    setup_io_uring(efd);
+    setup_io_uring(data.efd);
 
     /* Initiate a read with io_uring */
     read_file_with_io_uring();

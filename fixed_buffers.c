@@ -2,7 +2,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include "liburing.h"
+#include <liburing.h>
 
 #define BUF_SIZE    512
 #define FILE_NAME1   "/tmp/io_uring_test.txt"
@@ -100,7 +100,7 @@ int start_fixed_buffer_ops(struct io_uring *ring) {
         io_uring_cqe_seen(ring, cqe);
     }
     printf("Contents read from file:\n");
-    printf("%s%s", iov[2].iov_base, iov[3].iov_base);
+    printf("%s%s", (char*)(iov[2].iov_base), (char*)(iov[3].iov_base));
 }
 
 int main() {

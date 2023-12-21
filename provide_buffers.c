@@ -18,13 +18,13 @@ int setup_buffers(struct io_uring *ring) {
     sqe = io_uring_get_sqe(ring);
     io_uring_prep_provide_buffers(sqe, bufs, BUF_SZ, BUF_COUNT, BUF_GRP_ID, 0);
 
-    io_uring_submit(&ring);
-    io_uring_wait_cqe(&ring, &cqe);
+    io_uring_submit(ring);
+    io_uring_wait_cqe(ring, &cqe);
     if (cqe->res < 0) {
         printf("cqe->res = %d\n", cqe->res);
         exit(1);
     }
-    io_uring_cqe_seen(&ring, cqe);
+    io_uring_cqe_seen(ring, cqe);
 }
 
 int provide_buffers(struct io_uring *ring) {
