@@ -64,7 +64,7 @@ int main() {
     printf("This program won't work on kernel versions earlier than 5.6\n");
     struct io_uring_probe *probe = io_uring_get_probe();
     if (probe == NULL) {
-        perror("Error probing io_uring");
+        printf("Unable to get io_uring probe. The kernel does not support io_uring.\n");
         return 1;
     }
     printf("Report of your kernel's list of supported io_uring operations:\n");
