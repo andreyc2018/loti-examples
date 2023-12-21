@@ -38,17 +38,37 @@ static const char *op_strs[] = {
         "IORING_OP_SPLICE",
         "IORING_OP_PROVIDE_BUFFERS",
         "IORING_OP_REMOVE_BUFFERS",
-        "IORING_OP_TEE"
+        "IORING_OP_TEE",
+        "IORING_OP_SHUTDOWN",
+        "IORING_OP_RENAMEAT",
+        "IORING_OP_UNLINKAT",
+        "IORING_OP_MKDIRAT",
+        "IORING_OP_SYMLINKAT",
+        "IORING_OP_LINKAT",
+        "IORING_OP_MSG_RING",
+        "IORING_OP_FSETXATTR",
+        "IORING_OP_SETXATTR",
+        "IORING_OP_FGETXATTR",
+        "IORING_OP_GETXATTR",
+        "IORING_OP_SOCKET",
+        "IORING_OP_URING_CMD",
+        "IORING_OP_SEND_ZC",
+        "IORING_OP_SENDMSG_ZC"
 };
 
 int main() {
+    int nb_str_ops = sizeof(op_strs) / sizeof(op_strs[0]);
     struct utsname u;
     uname(&u);
     printf("You are running kernel version: %s\n", u.release);
     printf("This program won't work on kernel versions earlier than 5.6\n");
     struct io_uring_probe *probe = io_uring_get_probe();
+    if (probe == NULL) {
+        printf("Unable to get io_uring probe\n");
+        return 1;
+    }
     printf("Report of your kernel's list of supported io_uring operations:\n");
-    for (char i = 0; i < IORING_OP_LAST; i++ ) {
+    for (char i = 0; i < IORING_OP_LAST && i < nb_str_ops; i++ ) {
         printf("%s: ", op_strs[i]);
         if(io_uring_opcode_supported(probe, i))
             printf("yes.\n");
@@ -56,6 +76,15 @@ int main() {
             printf("no.\n");
 
     }
-    free(probe);
+    if (IORING_OP_LAST > nb_str_ops) {
+        int nb_unknown_supported = 0;
+        for (int i = nb_str_ops; i < IORING_OP_LAST; i++) {
+        if (io_uring_opcode_supported(probe, i))
+            nb_unknown_supported++;
+        }
+        printf("Your liburing knows about operations I don't know about,\n"
+               "of which %d are supported by your kernel.\n", nb_unknown_supported);
+    }
+    io_uring_free_probe(probe);
     return 0;
 }
