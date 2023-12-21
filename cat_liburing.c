@@ -6,8 +6,8 @@
 #include <liburing.h>
 #include <stdlib.h>
 
-#define QUEUE_DEPTH 1
-#define BLOCK_SZ    1024
+#define QUEUE_DEPTH 10
+#define BLOCK_SZ    4096
 
 struct file_info {
     off_t file_sz;
@@ -158,4 +158,3 @@ int main(int argc, char *argv[]) {
     io_uring_queue_exit(&ring);
     return 0;
 }
-
